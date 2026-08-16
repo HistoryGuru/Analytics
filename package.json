@@ -14,7 +14,7 @@
     "scrape:tabroom": "tsx scripts/scrape-tabroom.ts"
   },
   "dependencies": {
-    "@prisma/client": "^7.9.1",
+    "@prisma/client": "^6.0.0",
     "cheerio": "^1.2.0",
     "dotenv": "^17.4.2",
     "mammoth": "^1.12.1",
