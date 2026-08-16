@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: debate-catalog
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: debate-catalog-db
+          property: connectionString
+      - key: TABROOM_USERNAME
+        sync: false
+      - key: TABROOM_PASSWORD
+        sync: false
+      - key: TABROOM_BASE_URL
+        value: https://staging.tabroom.com
+      - key: SCRAPER_USER_AGENT
+        value: "debate-catalog-bot/0.1 (contact: replace-me@example.com)"
+      - key: SCRAPER_DELAY_MS
+        value: "1500"
+      - key: NODE_VERSION
+        value: "20"
+
+databases:
+  - name: debate-catalog-db
+    plan: free
+    databaseName: debate_catalog
+    user: debate_catalog

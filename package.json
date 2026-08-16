@@ -1,0 +1,39 @@
+{
+  "name": "debate-catalog",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "prisma generate && prisma db push --accept-data-loss && next build",
+    "start": "next start",
+    "postinstall": "prisma generate",
+    "lint": "eslint",
+    "prisma:generate": "prisma generate",
+    "prisma:push": "prisma db push",
+    "sync:opencaselist": "tsx scripts/sync-opencaselist.ts",
+    "scrape:tabroom": "tsx scripts/scrape-tabroom.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.9.1",
+    "cheerio": "^1.2.0",
+    "dotenv": "^17.4.2",
+    "mammoth": "^1.12.1",
+    "next": "16.3.1",
+    "pdf-parse": "^2.4.5",
+    "prisma": "^7.9.1",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "tsx": "^4.23.12"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/cheerio": "^0.22.35",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

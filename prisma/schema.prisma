@@ -1,0 +1,128 @@
+// Debate Catalog - Prisma schema
+// Run `npx prisma generate` and `npx prisma db push` after `npm install`.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- OpenCaselist data ----------
+
+model Caselist {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique // e.g. "hsld25"
+  name      String
+  event     String   // "LD" | "Policy" | ...
+  year      Int
+  archived  Boolean  @default(false)
+  schools   School[]
+  syncedAt  DateTime?
+}
+
+model School {
+  id            Int      @id @default(autoincrement())
+  caselistId    Int
+  caselist      Caselist @relation(fields: [caselistId], references: [id])
+  name          String   // slug used in URLs
+  displayName   String
+  state         String?
+  teams         Team[]
+
+  @@unique([caselistId, name])
+}
+
+model Team {
+  id                 Int      @id @default(autoincrement())
+  schoolId           Int
+  school             School   @relation(fields: [schoolId], references: [id])
+  name               String   // slug used in URLs, e.g. "SmJo"
+  displayName        String
+  notes              String?
+  debater1First      String?
+  debater1Last       String?
+  debater2First      String?
+  debater2Last       String?
+  rounds             Round[]
+  cites              Cite[]
+
+  @@unique([schoolId, name])
+}
+
+// A single disclosed round on OpenCaselist (what was read, vs whom - NOT win/loss)
+model Round {
+  id           Int      @id @default(autoincrement())
+  externalId   Int?     // opencaselist round_id
+  teamId       Int
+  team         Team     @relation(fields: [teamId], references: [id])
+  tournament   String
+  side         String   // "Aff" | "Neg" | "Gov" | "Opp" etc.
+  roundLabel   String   // "Round" number/label as opencaselist stores it, e.g. "5", "Octas"
+  opponent     String?
+  judge        String?
+  report       String?
+  tournId      Int?     // tabroom tournament id, when opencaselist has it
+  cites        Cite[]
+
+  // Populated by the join step against Tabroom results, when we can match one.
+  tabroomResultId Int?  @unique
+  tabroomResult   TabroomResult? @relation(fields: [tabroomResultId], references: [id])
+
+  @@index([tournament, opponent])
+}
+
+// A cite = a disclosed position/argument text blob for a round
+model Cite {
+  id          Int      @id @default(autoincrement())
+  externalId  Int?     // opencaselist cite_id
+  roundId     Int
+  round       Round    @relation(fields: [roundId], references: [id])
+  teamId      Int
+  team        Team     @relation(fields: [teamId], references: [id])
+  title       String?
+  citesText   String   // raw wiki-markdown cite content from opencaselist
+  // Extracted, normalized argument tags (see lib/analysis/argument-extraction.ts)
+  extractedArguments ArgumentTag[]
+}
+
+// A normalized argument label extracted/curated from cite text or manual tagging,
+// e.g. "Cap K", "Midterms DA", "Util Value Framing"
+model ArgumentTag {
+  id          Int      @id @default(autoincrement())
+  label       String   @unique
+  category    String?  // "K" | "DA" | "CP" | "Framework" | "Case" | ...
+  cites       Cite[]
+}
+
+// ---------- Tabroom data (scraped HTML) ----------
+
+model TabroomResult {
+  id           Int      @id @default(autoincrement())
+  tournament   String
+  tournamentId Int?
+  round        String
+  side         String?
+  opponentName String?
+  judgeName    String?
+  win          Boolean? // null = unknown/could not parse
+  decisionType String?  // e.g. "3-0", "2-1", ballot count if available
+  scrapedAt    DateTime @default(now())
+  round_ref    Round?
+
+  @@index([tournament, opponentName])
+}
+
+// ---------- Uploaded user files (1AC/1NC/etc) ----------
+
+model UserFile {
+  id          Int      @id @default(autoincrement())
+  filename    String
+  fileType    String   // "1AC" | "1NC" | "Case" | "Block" | ...
+  storagePath String
+  extractedText String?
+  tags        String?  // comma-separated ArgumentTag labels, simple v1 approach
+  uploadedAt  DateTime @default(now())
+}
