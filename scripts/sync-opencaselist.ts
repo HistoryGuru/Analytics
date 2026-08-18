@@ -1,10 +1,15 @@
 /**
  * Usage:
  *   npm run sync:opencaselist -- --caselist hsld25 --school "MyOpponentSchool"
+ *   npm run sync:opencaselist -- --caselist hsld25 --archived
  *
  * Syncs one caselist (optionally scoped to one school) from OpenCaselist into
  * the local DB: schools -> teams -> rounds -> cites. Safe to re-run; it
  * upserts on the unique slugs/ids from the API.
+ *
+ * Add --archived when pulling a past/ended season - OpenCaselist marks last
+ * year's caselist (and older) as archived once the season wraps, and the
+ * default /caselists lookup only returns non-archived ones.
  */
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
