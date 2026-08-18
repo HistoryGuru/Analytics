@@ -80,10 +80,10 @@ async function main() {
       create: {
         caselistId: caselist.id,
         name: remoteSchool.name,
-        displayName: remoteSchool.displayName,
+        displayName: remoteSchool.display_name,
         state: remoteSchool.state ?? null,
       },
-      update: { displayName: remoteSchool.displayName, state: remoteSchool.state ?? null },
+      update: { displayName: remoteSchool.display_name, state: remoteSchool.state ?? null },
     });
 
     const teams = await client.getTeams(caselistSlug, remoteSchool.name);
