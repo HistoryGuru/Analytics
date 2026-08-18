@@ -1,10 +1,15 @@
 /**
  * Usage:
  *   npm run sync:opencaselist -- --caselist hsld25 --school "MyOpponentSchool"
+ *   npm run sync:opencaselist -- --caselist hsld25 --archived
  *
  * Syncs one caselist (optionally scoped to one school) from OpenCaselist into
  * the local DB: schools -> teams -> rounds -> cites. Safe to re-run; it
  * upserts on the unique slugs/ids from the API.
+ *
+ * Add --archived when pulling a past/ended season - OpenCaselist marks last
+ * year's caselist (and older) as archived once the season wraps, and the
+ * default /caselists lookup only returns non-archived ones.
  */
 import 'dotenv/config';
 import { PrismaClient } from '@prisma/client';
@@ -21,14 +26,15 @@ function parseArgs() {
   return {
     caselist: get('--caselist'),
     school: get('--school'),
+    archived: args.includes('--archived'),
   };
 }
 
 async function main() {
-  const { caselist: caselistSlug, school: schoolFilter } = parseArgs();
+  const { caselist: caselistSlug, school: schoolFilter, archived } = parseArgs();
   if (!caselistSlug) {
-    console.error('Usage: npm run sync:opencaselist -- --caselist <slug> [--school <name>]');
-    console.error('Run with just a slug missing to see available slugs, e.g. `npm run sync:opencaselist -- --list`');
+    console.error('Usage: npm run sync:opencaselist -- --caselist <slug> [--school <name>] [--archived]');
+    console.error('Add --archived when pulling a past/ended season (e.g. hsld25) - those are archived on OpenCaselist.');
     process.exit(1);
   }
 
@@ -42,7 +48,7 @@ async function main() {
   console.log('Logging in to OpenCaselist...');
   await client.login();
 
-  const remoteCaselists = await client.getCaselists(false);
+  const remoteCaselists = await client.getCaselists(archived);
   const remoteCaselist = remoteCaselists.find((c) => c.name === caselistSlug);
   if (!remoteCaselist) {
     console.error(`Caselist "${caselistSlug}" not found. Available: ${remoteCaselists.map((c) => c.name).join(', ')}`);
