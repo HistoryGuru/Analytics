@@ -36,7 +36,7 @@ export interface Caselist {
 
 export interface School {
   name: string;
-  displayName: string;
+  display_name: string;
   state?: string | null;
 }
 
