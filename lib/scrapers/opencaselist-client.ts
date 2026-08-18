@@ -25,10 +25,12 @@ export interface OpenCaselistConfig {
 
 export interface Caselist {
   caselist_id: number;
-  slug: string;
   name: string;
+  display_name: string;
   event: string;
   year: number;
+  level: string;
+  team_size: number;
   archived: boolean;
 }
 
