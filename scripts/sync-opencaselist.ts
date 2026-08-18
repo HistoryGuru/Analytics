@@ -71,7 +71,7 @@ async function main() {
   console.log(`Syncing schools for ${caselist.slug}...`);
   const schools = await client.getSchools(caselistSlug);
   const filteredSchools = schoolFilter
-    ? schools.filter((s) => s.name === schoolFilter || s.displayName === schoolFilter)
+    ? schools.filter((s) => s.name === schoolFilter || s.display_name === schoolFilter)
     : schools;
 
   for (const remoteSchool of filteredSchools) {
