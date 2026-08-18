@@ -43,17 +43,17 @@ async function main() {
   await client.login();
 
   const remoteCaselists = await client.getCaselists(false);
-  const remoteCaselist = remoteCaselists.find((c) => c.slug === caselistSlug);
+  const remoteCaselist = remoteCaselists.find((c) => c.name === caselistSlug);
   if (!remoteCaselist) {
-    console.error(`Caselist "${caselistSlug}" not found. Available: ${remoteCaselists.map((c) => c.slug).join(', ')}`);
+    console.error(`Caselist "${caselistSlug}" not found. Available: ${remoteCaselists.map((c) => c.name).join(', ')}`);
     process.exit(1);
   }
 
   const caselist = await prisma.caselist.upsert({
-    where: { slug: remoteCaselist.slug },
+    where: { slug: remoteCaselist.name },
     create: {
-      slug: remoteCaselist.slug,
-      name: remoteCaselist.name,
+      slug: remoteCaselist.name,
+      name: remoteCaselist.display_name,
       event: remoteCaselist.event,
       year: remoteCaselist.year,
       archived: remoteCaselist.archived,
